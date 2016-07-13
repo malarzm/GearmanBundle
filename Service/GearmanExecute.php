@@ -337,7 +337,7 @@ class GearmanExecute extends AbstractGearmanService
             pcntl_signal_dispatch();
 
             if ($gearmanWorker->returnCode() == GEARMAN_NO_JOBS || $gearmanWorker->returnCode() == GEARMAN_IO_WAIT) {
-                usleep(1000);
+                usleep(10000);
                 continue;
             }
 
