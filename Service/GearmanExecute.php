@@ -189,6 +189,8 @@ class GearmanExecute extends AbstractGearmanService
             $gearmanWorker = new \GearmanWorker;
         }
 
+        $gearmanWorker->addOptions(GEARMAN_WORKER_NON_BLOCKING);
+
         if (isset($worker['job'])) {
 
             $jobs = array($worker['job']);
@@ -328,9 +330,17 @@ class GearmanExecute extends AbstractGearmanService
         /**
          * Executes GearmanWorker with all jobs defined
          */
-        while (false === $this->stopWorkSignalReceived && $gearmanWorker->work()) {
-
+        while (false === $this->stopWorkSignalReceived && (@$gearmanWorker->work() ||
+                $gearmanWorker->returnCode() == GEARMAN_IO_WAIT ||
+                $gearmanWorker->returnCode() == GEARMAN_NO_JOBS)
+        ) {
             pcntl_signal_dispatch();
+
+            if ($gearmanWorker->returnCode() == GEARMAN_NO_JOBS || $gearmanWorker->returnCode() == GEARMAN_IO_WAIT) {
+                usleep(1000);
+                continue;
+            }
+
             $iterations--;
 
             $event = new GearmanWorkExecutedEvent($jobs, $iterations, $gearmanWorker->returnCode());
