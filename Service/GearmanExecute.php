@@ -98,7 +98,7 @@ class GearmanExecute extends AbstractGearmanService
          */
         if(false !== function_exists('pcntl_signal'))
         {
-            declare(ticks = 1);
+            pcntl_signal_dispatch();
             pcntl_signal(SIGTERM, array($this,"handleSystemSignal"));
             pcntl_signal(SIGHUP,  array($this,"handleSystemSignal"));
 
