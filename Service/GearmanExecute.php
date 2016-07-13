@@ -330,6 +330,7 @@ class GearmanExecute extends AbstractGearmanService
          */
         while (false === $this->stopWorkSignalReceived && $gearmanWorker->work()) {
 
+            pcntl_signal_dispatch();
             $iterations--;
 
             $event = new GearmanWorkExecutedEvent($jobs, $iterations, $gearmanWorker->returnCode());
